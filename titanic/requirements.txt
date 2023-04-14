@@ -1,0 +1,10 @@
+autopep8
+fastapi
+matplotlib
+numpy
+pandas
+pandasql
+requests
+scikit-learn
+scipy
+uvicorn[standard]
