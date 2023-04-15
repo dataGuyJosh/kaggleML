@@ -6,9 +6,6 @@ def check_cardinality(df):
     unique_categories = {}
     for feature in categorical_features:
         unique_categories[feature] = len(df[feature].unique())
-        # print("Cardinality of {}: {}".format(
-        #     feature, unique_categories[feature]))
-
     return unique_categories
 
 def check_nulls(df):
@@ -31,14 +28,16 @@ def categorical_feature_handler(df):
 
 def preprocess(df, target):
     # drop high cardinality, low importance features
-    df.drop(['Name','Ticket'], axis=1, inplace=True)
+    # df.drop(['Name','Ticket'], axis=1, inplace=True)
     
-    # nulls
-    df.fillna(df.mean(), inplace=True)
+    # replace categorical nulls with mode
+    # replace numerical nulls with mean
+    for c in df:
+        replacement_value = df[c].mode() if df[c].dtype == 'object' else df[c].mean()
+        df[c].fillna(replacement_value, inplace=True)
 
-    # categorical features
     categorical_feature_handler(df)
 
     # numeric features
-    
+
     return df
