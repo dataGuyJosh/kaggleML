@@ -1,25 +1,27 @@
-from preprocess import check_cardinality, check_nulls, read_data, preprocess
-from model import check_feature_importance, fit_generic_models, cross_validate_models
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
-raw_train_df = read_data('data/train.csv')
-train_df = preprocess(raw_train_df.copy(), 'Survived')
+from utility import cross_validate_model
 
-# print(raw_train_df,train_df)
+train_df = pd.read_csv('data/train.csv')
+test_df = pd.read_csv('data/test.csv')
 
-X = train_df.drop(['Survived'], axis=1)
-y = train_df['Survived']
+print(train_df.head(),test_df.head(),sep='\n~~~\n')
 
-# check nulls, cardinality & feature importance
-print(
-    check_nulls(raw_train_df),
-    check_cardinality(raw_train_df),
-    check_feature_importance(X, y),
-    sep = '\n~~~\n'
-)
+features = ['Pclass', 'Sex', 'SibSp', 'Parch']
 
-# fit models
-models = fit_generic_models(['DecisionTreeRegressor', 'ExtraTreesRegressor', 'LinearRegression'], X, y)
+X = pd.get_dummies(train_df[features])
+X_test = pd.get_dummies(test_df[features])
+y = train_df.Survived
 
-# check scores
-scores = cross_validate_models(models, 10, X, y)
-print(scores)
+model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=1)
+model.fit(X,y)
+predictions = pd.DataFrame({'PassengerId': test_df.PassengerId, 'Survived': model.predict(X_test)})
+
+print(cross_validate_model(model, 10, X, y))
+
+# predictions.to_csv('data/submission.csv', index = False)
+
+
+# X = train_df.drop(['Survived'], axis=1)
+# y = train_df['Survived']
