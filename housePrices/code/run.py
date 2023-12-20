@@ -1,24 +1,26 @@
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error
-from utility import cross_validate_model
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+import scipy.stats as stats
+from IPython.display import display, HTML
 
-train_df = pd.read_csv('data/train.csv')
-test_df = pd.read_csv('data/test.csv')
+# load data
+trn_df = pd.read_csv('data/train.csv')
+tst_df = pd.read_csv('data/test.csv')
 
-print(train_df.head())
+# summary stats for numerical features
+num_stats = trn_df.select_dtypes(include=[np.number]).describe().T
+# summary stats for categorical features
+cat_stats = trn_df.select_dtypes(include=[object]).describe().T
+print(num_stats, cat_stats, sep='\n')
 
-train_df = train_df.fillna(train_df.mean())
+# null values in dataset
+nullsPerFeature = trn_df.isnull().sum()
+print(nullsPerFeature / len(trn_df))
 
-X_train = train_df[['MSSubClass', 'LotFrontage']].to_numpy()
-y_train = train_df[['SalePrice']].to_numpy()
+# explore rows with null values
+nullRows = trn_df[trn_df.isnull().any(axis=1)]
+print(nullRows)
 
-
-model = LinearRegression().fit(X_train,y_train)
-
-train_df['LinearPrediction'] = model.predict(X_train)
-
-# print(train_df)
-print(mean_absolute_error(train_df['SalePrice'], train_df['LinearPrediction']))
-
-print(cross_validate_model(model, 10, X_train, y_train))
+# explore the dependent variable (SalePrice)
