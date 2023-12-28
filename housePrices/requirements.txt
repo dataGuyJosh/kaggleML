@@ -6,3 +6,4 @@ scipy
 plotly
 IPython
 uvicorn[standard]
+xgboost
